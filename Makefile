@@ -1,4 +1,4 @@
-CC=g++
+CC=g++-11
 
 CC_DEF_FLAGS =-std=c++11 -DBOOST_LOG_DYN_LINK -Wall -O3 -Ofast -march=native
 CC+=$(CC_DEF_FLAGS)
@@ -9,7 +9,7 @@ OBJ_DIR := obj
 
 HDF5_PATH_INC = /usr/include/hdf5/serial
 
-CINCLUDE =-I$(HDF5_PATH_INC) -I$(HPP_DIR)
+CINCLUDE =-I$(HDF5_PATH_INC) -I$(HPP_DIR) -I$(OBJ_DIR)/uhd/install/include
 CLINK = -lz -lsz -ldl
 CLINK += -lpthread -lboost_system -lboost_program_options -lboost_chrono -lboost_thread -lboost_log -lboost_log_setup
 
@@ -46,18 +46,26 @@ doc:
 	$(info Generating Python documentation...)
 	$(SPHINXBUILD) "$(SPHINXSOURCEDIR)" "$(SPHINXBUILDDIR)" $(SPHINXOPTS) $(O)
 
+# Build the UHD library using CMake
+uhd_build:
+	@mkdir -p $(OBJ_DIR)/uhd
+	@cd $(OBJ_DIR)/uhd && cmake -DCMAKE_INSTALL_PREFIX=install/ -DCMAKE_BUILD_TYPE=Release -DENABLE_PYTHON_API=ON -DENABLE_EXAMPLES=OFF -DENABLE_UTILS=OFF -DENABLE_TESTS=OFF $(CURDIR)/uhd/host
+	@cmake --build $(OBJ_DIR)/uhd  -j $(CPUS/2)
+	@cmake --install $(OBJ_DIR)/uhd
+
+
 server: $(CUDA_OBJ_FILES) $(OBJ_FILES)
 	$(info Linking all using nvcc...)
-	@$(NVCC) $(CLINK) $(NVLINK) -o $@ $^
+	@$(NVCC) -L$(OBJ_DIR)/uhd/lib -L/usr/lib/x86_64-linux-gnu/ $(CLINK) $(NVLINK) -o $@ $^
 	$(info Cleaning object files...)
 	@rm -rf $(OBJ_DIR)
 
-$(OBJ_FILES): $(SRC_FILES) $(HPP_FILES) $(CUDA_HPP_FILES)
+$(OBJ_FILES):uhd_build $(SRC_FILES) $(HPP_FILES) $(CUDA_HPP_FILES)
 	$(info Compiling $(patsubst $(OBJ_DIR)/%.o,$(SRC_DIR)/%.cpp,$@) ...)
 	@mkdir -p $(OBJ_DIR)
 	@$(CC) $(CINCLUDE) $(NVINCLUDE) -c -o $@  $(patsubst $(OBJ_DIR)/%.o,$(SRC_DIR)/%.cpp,$@)
 
-$(CUDA_OBJ_FILES): $(CUDA_SRC_FILES) $(CUDA_HPP_FILES)
+$(CUDA_OBJ_FILES): uhd_build $(CUDA_SRC_FILES) $(CUDA_HPP_FILES)
 	$(info Compiling $(patsubst $(OBJ_DIR)/%.o,$(SRC_DIR)/%.cu,$@) ...)
 	@mkdir -p $(OBJ_DIR)
 	@$(NVCC) $(CINCLUDE) $(NVINCLUDE) -dc -o $@ $(patsubst $(OBJ_DIR)/%.o,$(SRC_DIR)/%.cu,$@)

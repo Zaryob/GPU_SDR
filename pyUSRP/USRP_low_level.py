@@ -166,7 +166,7 @@ def print_warning(message):
     :param message: the warning message.
     :return: None
     '''
-    print "\033[40;33mWARNING\033[0m: " + str(message) + "."
+    print("\033[40;33mWARNING\033[0m: " + str(message) + ".")
 
 
 def print_error(message):
@@ -175,7 +175,7 @@ def print_error(message):
     :param message: the error message.
     :return: None
     '''
-    print "\033[1;31mERROR\033[0m: " + str(message) + "."
+    print("\033[1;31mERROR\033[0m: " + str(message) + ".")
 
 
 def print_debug(message):
@@ -184,7 +184,7 @@ def print_debug(message):
     :param message: the debug message.
     :return: None
     '''
-    print "\033[3;2;37m" + str(message) + "\033[0m"
+    print("\033[3;2;37m" + str(message) + "\033[0m")
 
 
 def print_line(msg):

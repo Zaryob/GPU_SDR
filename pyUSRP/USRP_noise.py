@@ -14,8 +14,8 @@ import struct
 import json
 import os
 import socket
-import Queue
-from Queue import Empty
+import queue
+from queue import Empty
 from threading import Thread, Condition
 import multiprocessing
 from joblib import Parallel, delayed
@@ -43,11 +43,11 @@ from matplotlib.ticker import EngFormatter
 import progressbar
 
 # import submodules
-from USRP_low_level import *
-from USRP_files import *
-from USRP_delay import *
-from USRP_fitting import get_fit_param
-from USRP_fitting import get_fit_data
+from .USRP_low_level import *
+from .USRP_files import *
+from .USRP_delay import *
+from .USRP_fitting import get_fit_param
+from .USRP_fitting import get_fit_data
 
 def dual_get_noise(tones_A, tones_B, measure_t, rate, decimation = None, amplitudes_A = None, amplitudes_B = None, RF_A = None, RF_B = None, tx_gain_A = 0, tx_gain_B = 0, output_filename = None,
               Device = None, delay = None, pf_average = None, mode = "DIRECT" ,**kwargs):
@@ -105,7 +105,7 @@ def dual_get_noise(tones_A, tones_B, measure_t, rate, decimation = None, amplitu
     else:
         output_filename = str(output_filename)
 
-    print("Begin dual noise acquisition, file %s ..."%output_filename)
+    print(("Begin dual noise acquisition, file %s ..."%output_filename))
 
     if measure_t <= 0:
         print_error("Cannot execute a noise measure with "+str(measure_t)+"s duration.")
@@ -442,7 +442,7 @@ def Get_noise(tones, measure_t, rate, decimation = None, amplitudes = None, RF =
     else:
         output_filename = str(output_filename)
 
-    print("Begin noise acquisition, file %s ..."%output_filename)
+    print(("Begin noise acquisition, file %s ..."%output_filename))
 
     if measure_t <= 0:
         print_error("Cannot execute a noise measure with "+str(measure_t)+"s duration.")
@@ -529,7 +529,7 @@ def Get_noise(tones, measure_t, rate, decimation = None, amplitudes = None, RF =
 
         print("Tone [MHz]\tPower [dBm]\tOffset [MHz]")
         for i in range(len(tones)):
-            print("%.1f\t%.2f\t%.3f" % ((RF + tones[i]) / 1e6, USRP_power + 20 * np.log10(amplitudes[i]), tones[i] / 1e6))
+            print(("%.1f\t%.2f\t%.3f" % ((RF + tones[i]) / 1e6, USRP_power + 20 * np.log10(amplitudes[i]), tones[i] / 1e6)))
 
         expected_samples = int(number_of_samples/final_fft_bins)
         noise_command = global_parameter()
@@ -714,7 +714,7 @@ def calculate_noise(filename, welch=None, dbc=False, rotate=True, usrp_number=0,
     * Default behaviour should be getting all the available RX antenna.
     '''
 
-    print("Calculating noise spectra for " + filename)
+    print(("Calculating noise spectra for " + filename))
 
     if verbose: print_debug("Reading attributes...")
 
@@ -868,9 +868,9 @@ def plot_noise_spec(filenames, channel_list=None, max_frequency=None, title_info
     if len(filenames)>1:
         print("Plotting noise from files:")
         for f in filenames:
-            print("\t%s"%f)
+            print(("\t%s"%f))
     else:
-        print("Plotting noise from file %s ..."%filenames[0])
+        print(("Plotting noise from file %s ..."%filenames[0]))
 
     add_info_labels = None
     try:
@@ -1079,7 +1079,7 @@ def copy_resonator_group(VNA_filename, NOISE_filename):
     VNA_filename = format_filename(VNA_filename)
     resonator_grp_name = "Resonators"
     VNA_fv = h5py.File(VNA_filename, 'r')
-    if resonator_grp_name not in VNA_fv.keys():
+    if resonator_grp_name not in list(VNA_fv.keys()):
         err_msg = 'VNA file:%s does not contain the Resonators group'%VNA_filename
         print_error(err_msg)
         raise ValueError(err_msg)
@@ -1328,12 +1328,12 @@ def plot_frequency_timestreams(filenames, decimation=None, displayed_samples=Non
 
             #print_debug("plot_raw_data() found %d channels each long %d samples" % (len(samples), len(samples[0])))
             if channel_list == None:
-                ch_list = range(len(freq_ts))
+                ch_list = list(range(len(freq_ts)))
             else:
                 if max(channel_list) > len(freq_ts):
                     print_warning(
                         "Channel list selected in plot_raw_data() is bigger than avaliable channels. plotting all available channels")
-                    ch_list = range(len(freq_ts))
+                    ch_list = list(range(len(freq_ts)))
                 else:
                     ch_list = channel_list
 
@@ -1440,7 +1440,7 @@ def diagnostic_VNA_noise(noise_filename, points = None, VNA_file = None, ant = "
         return 20*np.log10(value)
 
     noise_filename = format_filename(noise_filename)
-    print("Plotting diagnostic data from \'%s\'"%noise_filename)
+    print(("Plotting diagnostic data from \'%s\'"%noise_filename))
     resonator_grp_name = "Resonators"
     info = get_rx_info(noise_filename, ant=ant)
     tx_info = get_tx_info(noise_filename, ant=ant.split('_')[0]+"_TXRX")
@@ -1468,7 +1468,7 @@ def diagnostic_VNA_noise(noise_filename, points = None, VNA_file = None, ant = "
         raise ValueError(err_msg)
 
     #check Resonators group existance
-    if resonator_grp_name not in noise_file.keys():
+    if resonator_grp_name not in list(noise_file.keys()):
         err_msg = "Cannot find the Resonator group in the file %s" % noise_filename
         print_error(err_msg)
         raise ValueError(err_msg)

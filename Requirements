@@ -1,0 +1,16 @@
+build-essential
+doxygen
+sphinx-build
+python3-h5py
+python3-joblib
+python3-plotly
+libhdf5-dev
+libhdf5-hl-cpp-100
+libhdf5-cpp-103-1
+grapviz
+dpdk
+dpdk-dev
+libusb-dev
+libusb-1.0-0
+libusb-1.0-0-dev
+python3-ruamel.yaml

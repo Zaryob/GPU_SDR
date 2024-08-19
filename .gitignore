@@ -16,3 +16,15 @@ scripts/data/
 /lib_docs
 /logs
 /server_docs/build
+build/
+cmake_clean.cmake 
+cmake_install.cmake
+wget-log 
+CMakeCache.txt
+CMakeDoxygenDefaults.cmake
+CMakeDoxyfile.in  
+CMakeFiles/
+build.ninja
+obj/
+.idea/
+cmake-build-debug/

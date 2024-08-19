@@ -14,8 +14,8 @@ import struct
 import json
 import os
 import socket
-import Queue
-from Queue import Empty
+import queue
+from queue import Empty
 from threading import Thread,Condition
 import multiprocessing
 from joblib import Parallel, delayed
@@ -44,12 +44,12 @@ import matplotlib.patches as mpatches
 import progressbar
 
 #import submodules
-from USRP_low_level import *
-from USRP_connections import *
-from USRP_plotting import *
-from USRP_files import *
-from USRP_data_analysis import *
-from USRP_delay import *
+from .USRP_low_level import *
+from .USRP_connections import *
+from .USRP_plotting import *
+from .USRP_files import *
+from .USRP_data_analysis import *
+from .USRP_delay import *
 
 def Dual_VNA(start_f_A, last_f_A, start_f_B, last_f_B, measure_t, n_points, tx_gain_A, tx_gain_B, Rate = None, decimation = True, RF_A = None, RF_B = None,
                Device = None, output_filename = None, Multitone_compensation_A = None, Multitone_compensation_B = None, Iterations = 1, verbose = False, **kwargs):
@@ -97,7 +97,7 @@ def Dual_VNA(start_f_A, last_f_A, start_f_B, last_f_B, measure_t, n_points, tx_g
         RF_A = delta_f_A/2.
         start_f_A -= RF_A
         last_f_A -= RF_A
-        print "Setting RF (frontend A) central frequency to %.2f MHz"%(RF_A/1.e6)
+        print("Setting RF (frontend A) central frequency to %.2f MHz"%(RF_A/1.e6))
     else:
         delta_f_A = max(start_f_A,last_f_A) - min(start_f_A,last_f_A)
 
@@ -115,7 +115,7 @@ def Dual_VNA(start_f_A, last_f_A, start_f_B, last_f_B, measure_t, n_points, tx_g
         RF_B = delta_f_B/2.
         start_f_B -= RF_B
         last_f_B -= RF_B
-        print "Setting RF (frontend B) central frequency to %.2f MHz"%(RF_B/1.e6)
+        print("Setting RF (frontend B) central frequency to %.2f MHz"%(RF_B/1.e6))
     else:
         delta_f_B = max(start_f_B,last_f_B) - min(start_f_B,last_f_B)
 
@@ -245,7 +245,7 @@ def Dual_VNA(start_f_A, last_f_A, start_f_B, last_f_B, measure_t, n_points, tx_g
     vna_command.set(RX_frontend_B,"decim", decimation) # THIS only activate the decimation.
     if vna_command.self_check():
         if(verbose):
-            print "VNA command succesfully checked"
+            print("VNA command succesfully checked")
             vna_command.pprint()
 
         Async_send(vna_command.to_json())
@@ -316,7 +316,7 @@ def Single_VNA(start_f, last_f, measure_t, n_points, tx_gain, Rate = None, decim
         RF = delta_f/2.
         start_f -= RF
         last_f -= RF
-        print "Setting RF central frequency to %.2f MHz"%(RF/1.e6)
+        print("Setting RF central frequency to %.2f MHz"%(RF/1.e6))
     else:
         delta_f = max(start_f,last_f) - min(start_f,last_f)
 
@@ -418,7 +418,7 @@ def Single_VNA(start_f, last_f, measure_t, n_points, tx_gain, Rate = None, decim
 
     if vna_command.self_check():
         if(verbose):
-            print "VNA command succesfully checked"
+            print("VNA command succesfully checked")
             vna_command.pprint()
 
         Async_send(vna_command.to_json())
@@ -461,7 +461,7 @@ def VNA_timestream_analysis(filename, usrp_number = 0):
         print_error("Cannot interpret filename while opening a H5 file in Single_VNA_analysis function")
         raise ValueError("Cannot interpret filename while opening a H5 file in Single_VNA_analysis function")
 
-    print("Analyzing VNA file \'%s\'..."%filename)
+    print(("Analyzing VNA file \'%s\'..."%filename))
 
     parameters = global_parameter()
     parameters.retrive_prop_from_file(filename)
@@ -676,7 +676,7 @@ def VNA_timestream_plot(filename, backend='matplotlib', mode = 'magnitude', unwr
 
         fig.colorbar(img, label='|S21|')
         final_filename = output_filename+".png"
-        print final_filename
+        print(final_filename)
         pl.savefig(final_filename, bbox_inches="tight")
 
 
@@ -698,7 +698,7 @@ def VNA_analysis(filename, usrp_number = 0):
         print_error("Cannot interpret filename while opening a H5 file in Single_VNA_analysis function")
         raise ValueError("Cannot interpret filename while opening a H5 file in Single_VNA_analysis function")
 
-    print("Anlyzing VNA file \'%s\'..."%filename)
+    print(("Anlyzing VNA file \'%s\'..."%filename))
 
     parameters = global_parameter()
     parameters.retrive_prop_from_file(filename)

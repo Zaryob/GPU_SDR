@@ -14,8 +14,8 @@ import struct
 import json
 import os
 import socket
-import Queue
-from Queue import Empty
+import queue
+from queue import Empty
 from threading import Thread, Condition
 import multiprocessing
 from joblib import Parallel, delayed
@@ -42,7 +42,7 @@ import matplotlib.patches as mpatches
 import progressbar
 
 # import submodules
-from USRP_low_level import *
+from .USRP_low_level import *
 
 def format_filename(filename):
     return os.path.splitext(filename)[0]+".h5"
@@ -61,18 +61,18 @@ def bound_open(filename):
 
 def chk_multi_usrp(h5file):
     n = 0
-    for i in range(len(h5file.keys())):
-        if h5file.keys()[i][:8] == 'raw_data':
+    for i in range(len(list(h5file.keys()))):
+        if list(h5file.keys())[i][:8] == 'raw_data':
             n+=1
     return n
 
 def get_receivers(h5group):
     receivers = []
-    subs = h5group.keys()
+    subs = list(h5group.keys())
     for i in range( len(subs) ):
         mode = (h5group[subs[i]]).attrs.get("mode")
         if mode == "RX":
-            receivers.append(str(h5group.keys()[i]))
+            receivers.append(str(list(h5group.keys())[i]))
     return receivers
 
 
@@ -155,9 +155,9 @@ def openH5file(filename, ch_list=None, start_sample=None, last_sample=None, usrp
 
     if (not usrp_number) and chk_multi_usrp(f) != 1:
         this_warning = "Multiple usrp found in the file but no preference given to open file function. Assuming usrp " + str(
-            (f.keys()[0]).split("ata")[1])
+            (list(f.keys())[0]).split("ata")[1])
         print_warning(this_warning)
-        group_name = "raw_data" + str((f.keys()[0]).split("ata")[1])
+        group_name = "raw_data" + str((list(f.keys())[0]).split("ata")[1])
 
     if (not usrp_number) and chk_multi_usrp(f) == 1:
         group_name = "raw_data0"  # f.keys()[0]
@@ -205,7 +205,7 @@ def openH5file(filename, ch_list=None, start_sample=None, last_sample=None, usrp
         # print_debug("Getting number of cannels from wave_type attribute shape: %d channel(s) found"%n_chan)
 
     if ch_list == None:
-        ch_list = range(n_chan)
+        ch_list = list(range(n_chan))
 
     if n_chan < max(ch_list):
         this_error = "Channel selected: " + str(
@@ -225,13 +225,13 @@ def openH5file(filename, ch_list=None, start_sample=None, last_sample=None, usrp
         start_sample = int(start_sample)
 
     if last_sample == None:
-        last_sample = sys.maxint - 1
+        last_sample = sys.maxsize - 1
     else:
         last_sample = int(last_sample)
 
     if last_sample < 0 or last_sample < start_sample:
         print_warning("Last sample selected in open file function < 0 or < Start sample: setting it to maxint")
-        last_sample = sys.maxint
+        last_sample = sys.maxsize
 
     if (verbose):
         print_debug("Collecting samples...")
@@ -255,11 +255,11 @@ def openH5file(filename, ch_list=None, start_sample=None, last_sample=None, usrp
 
         if verbose:
             widgets = [progressbar.Percentage(), progressbar.Bar()]
-            bar = progressbar.ProgressBar(widgets=widgets, max_value=len(sub_group.keys())).start()
+            bar = progressbar.ProgressBar(widgets=widgets, max_value=len(list(sub_group.keys()))).start()
             read = 0
 
         current_len = np.shape(sub_group["dataset_1"])[1]
-        N_dataset = len(sub_group.keys())
+        N_dataset = len(list(sub_group.keys()))
 
         print_warning(
             "Raw amples inside " + filename + " have not been rearranged: the read from file can be slow for big files due to dataset reading overhead")
@@ -296,7 +296,7 @@ def openH5file(filename, ch_list=None, start_sample=None, last_sample=None, usrp
                     print_debug("decrease samples in progeressbar")
                 read += 1
         if errors > 0: print_warning("The measure opened contains %d erorrs!" % errors)
-        if (verbose): print "Done!"
+        if (verbose): print("Done!")
         f.close()
 
         if error_coord:
@@ -363,8 +363,8 @@ def get_noise(filename, usrp_number=0, front_end=None, channel_list=None):
     if front_end is not None:
         ant = front_end
     else:
-        if len(noise_group.keys()) > 0:
-            ant = noise_group.keys()[0]
+        if len(list(noise_group.keys())) > 0:
+            ant = list(noise_group.keys())[0]
         else:
             print_error("get_noise() cannot find valid front end names in noise group!")
             raise IndexError
@@ -379,7 +379,7 @@ def get_noise(filename, usrp_number=0, front_end=None, channel_list=None):
     info['n_chan'] = noise_subgroup.attrs.get("n_chan")
 
     if channel_list is None:
-        channel_list = range(info['n_chan'])
+        channel_list = list(range(info['n_chan']))
 
     info['tones'] = []
 
@@ -736,7 +736,7 @@ class global_parameter(object):
         '''
         x = self.to_json()
         parsed = json.loads(x)
-        print json.dumps(parsed, indent=4, sort_keys=True)
+        print(json.dumps(parsed, indent=4, sort_keys=True))
 
     def to_json(self):
         '''
@@ -884,7 +884,7 @@ class global_parameter(object):
 
         if (not usrp_number) and chk_multi_usrp(f) != 1:
             this_warning = "Multiple usrp found in the file but no preference given to get prop function. Assuming usrp " + str(
-                (f.keys()[0]).split("ata")[1])
+                (list(f.keys())[0]).split("ata")[1])
             print_warning(this_warning)
             group_name = "raw_data0"  # +str((f.keys()[0]).split("ata")[1])
 

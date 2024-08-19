@@ -14,8 +14,8 @@ import struct
 import json
 import os
 import socket
-import Queue
-from Queue import Empty
+import queue
+from queue import Empty
 from threading import Thread, Condition
 import multiprocessing
 from joblib import Parallel, delayed
@@ -43,9 +43,9 @@ from matplotlib.ticker import EngFormatter
 import progressbar
 
 # import submodules
-from USRP_low_level import *
-from USRP_files import *
-from USRP_delay import *
+from .USRP_low_level import *
+from .USRP_files import *
+from .USRP_delay import *
 
 def get_NODSP_tones(tones, measure_t, rate, amplitudes = None, RF = None, tx_gain = 0, output_filename = None, Front_end = None,
               Device = None, delay = None, **kwargs):
@@ -88,7 +88,7 @@ def get_NODSP_tones(tones, measure_t, rate, amplitudes = None, RF = None, tx_gai
     else:
         output_filename = str(output_filename)
 
-    print("Begin noise acquisition, file %s ..."%output_filename)
+    print(("Begin noise acquisition, file %s ..."%output_filename))
 
     if measure_t <= 0:
         print_error("Cannot execute a noise measure with "+str(measure_t)+"s duration.")
@@ -241,7 +241,7 @@ def Get_full_spec(tones, channels, measure_t, rate, RF = None, Front_end = None,
     else:
         output_filename = str(output_filename)
 
-    print("Begin noise acquisition, file %s ..."%output_filename)
+    print(("Begin noise acquisition, file %s ..."%output_filename))
 
     if measure_t <= 0:
         print_error("Cannot execute a noise measure with "+str(measure_t)+"s duration.")
@@ -278,7 +278,7 @@ def Get_full_spec(tones, channels, measure_t, rate, RF = None, Front_end = None,
 
     print("Tone [MHz]\tPower [dBm]\tOffset [MHz]")
     for i in range(len(tones)):
-        print("%.1f\t%.2f\t%.1f" % ((RF + tones[i]) / 1e6, USRP_power + 20 * np.log10(amplitudes[i]), tones[i] / 1e6))
+        print(("%.1f\t%.2f\t%.1f" % ((RF + tones[i]) / 1e6, USRP_power + 20 * np.log10(amplitudes[i]), tones[i] / 1e6)))
         if tones[i] > rate / 2:
             print_error("Out of bandwidth tone!")
             raise ValueError("Out of bandwidth tone requested. %.2f MHz / %.2f MHz (Nyq)" %(tones[i]/1e6, rate / 2e6) )

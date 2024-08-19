@@ -14,8 +14,8 @@ import struct
 import json
 import os
 import socket
-import Queue
-from Queue import Empty
+import queue
+from queue import Empty
 from threading import Thread, Condition
 import multiprocessing
 from joblib import Parallel, delayed
@@ -43,8 +43,8 @@ from matplotlib.ticker import EngFormatter
 import progressbar
 
 # import submodules
-from USRP_low_level import *
-from USRP_files import *
+from .USRP_low_level import *
+from .USRP_files import *
 
 
 def get_color(N):
@@ -216,12 +216,12 @@ def plot_raw_data(filenames, decimation=None, displayed_samples=None, low_pass=N
 
         #print_debug("plot_raw_data() found %d channels each long %d samples" % (len(samples), len(samples[0])))
         if channel_list == None:
-            ch_list = range(len(samples))
+            ch_list = list(range(len(samples)))
         else:
             if max(channel_list) > len(samples):
                 print_warning(
                     "Channel list selected in plot_raw_data() is bigger than avaliable channels. plotting all available channels")
-                ch_list = range(len(samples))
+                ch_list = list(range(len(samples)))
             else:
                 ch_list = channel_list
 
